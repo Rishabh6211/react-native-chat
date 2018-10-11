@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import {View,Button,TextInput,StyleSheet,Image,ScrollView,KeyboardAvoidingView} from  'react-native';
+import {View,Button,TextInput,StyleSheet,Image,ScrollView,KeyboardAvoidingView,ActivityIndicator,AsyncStorage} from  'react-native';
 import {Actions} from "react-native-router-flux";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import bgSrc from '../../react.png';
@@ -14,6 +14,10 @@ import { login } from '../action/index'
   handleUser = (text) => {
     this.setState({ username: text })
   }
+
+  
+
+   
   handlePassword = (text) => {
     this.setState({ password: text })
   }
@@ -24,14 +28,17 @@ import { login } from '../action/index'
     //alert('username: ' + username + ' password: ' + pass)
     this.props.login(username,pass)
   }
-  componentWillReceiveProps(Props){
-    if(Props.activeuser.userdata){
-      alert("login successfully")
-      Actions.tab_3()
-    }
-    else{
-      alert("invalid user")
-    }
+  // componentWillReceiveProps(Props){
+  //   if(Props.activeuser.userdata){
+  //     alert("login successfully")
+  //     Actions.tab_3()
+  //   }
+  //   else{
+  //     alert("invalid user")
+  //   }
+  // }
+  componentWillMount(){
+    
   }
   
   
@@ -55,26 +62,24 @@ import { login } from '../action/index'
           style={styles.input}
         />
 
-        <TextInput placeholder="Please Enter Password"  onChangeText = {this.handlePassword} secureTextEntry={true}
-          style={styles.input}
-        />
+       
         <KeyboardAvoidingView behavior="position" style={{alignSelf: 'stretch'}} >
-        <View style={styles.button}>
+              {this.props.loading ? <ActivityIndicator /> :<View style={styles.button}>
         
           <Button
               
               title="Login" 
               color="#0f5994"
               onPress = {
-                () => this.login(this.state.username, this.state.password)
+                () => this.login(this.state.username)
              }
               // onPress={() => Actions.listing()}
           />
           
-        </View>
+        </View>}
         </KeyboardAvoidingView>
-        <View style={styles.view2}>
-          <Button
+          <View style={styles.view2}>
+         <Button
           
               title="Signup here" color="#206994" 
               onPress={() => Actions.flex()}
@@ -189,7 +194,9 @@ const styles = StyleSheet.create({
 });
 
 mapStateToProps = state => {
-  return {activeuser:state.activeuser}
+  
+  return {activeuser:state.activeuser,
+    loading: state.activeuser.isLoading}
 }
 
 export default connect(mapStateToProps,{login})(LoginComponent)

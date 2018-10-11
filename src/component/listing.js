@@ -22,7 +22,7 @@ class ListComponent extends Component {
           users: []
         };
         this.props.getData();
-        this.search = this.search.bind(this)
+        // this.search = this.search.bind(this)
     }
 
     search(text){
@@ -30,17 +30,18 @@ class ListComponent extends Component {
     }
 
   render() {
+    console.log("this.propssadadad0", this.props.users)
     return (
       <Container>
       
-      <FilterComponent searchData={this.search}/>
+      {/* <FilterComponent searchData={this.search}/> */}
         
         <Content>
         
           <List dataArray={this.props.users}
             renderRow={(item) =>
                 <TouchableHighlight ><ListItem > 
-                 <Text onPress={() => Actions.detail(item.id)} key={item.id}>{item.first}</Text>
+                <Text onPress={() => Actions.detail(item.id)} key={item.id}>{item.user}</Text>
               </ListItem></TouchableHighlight>
             }>
           </List>

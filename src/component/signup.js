@@ -1,31 +1,47 @@
 import React,{Component} from 'react';
 import {View,Button,TextInput,StyleSheet,Image} from  'react-native';
 import {Actions} from "react-native-router-flux";
-export default class SignupComponent extends React.Component {
-  
+import { connect } from 'react-redux';
+import { signup } from '../action/index'
+ class SignupComponent extends React.Component {
+  state = {
+    name: '',
+    email: ''
+  }
+  handleUser = (text) => {
+    this.setState({ name: text })
+  }
+
+  handleEmail = (text) => {
+    this.setState({ email: text })
+  }
+  constructor(props) {
+    super()
+  }
+  signup = (name, email) => {
+    //alert('username: ' + username + ' password: ' + pass)
+    this.props.signup(name, email)
+  }
   render() {
     
     return (
       <View style={styles.container} > 
       
         <TextInput placeholder="Please Enter FirstName"
-          style={styles.input}
+          style={styles.input} onChangeText={this.handleUser}
         />
-        <TextInput placeholder="Please Enter LastName"
-          style={styles.input}
-        />
+       
         <TextInput placeholder="Please Enter Email"
-         style={styles.input}
-        />
-        <TextInput placeholder="Please Enter Password"  secureTextEntry={true}
-          style={styles.input}
+          style={styles.input} onChangeText={this.handleEmail}
         />
         <View style={styles.button}>
           <Button
               
               title="Signup" 
               color="#0f5994"
-              onPress={() => Actions.pop()}
+            onPress={
+              () => this.signup(this.state.name,this.state.email)
+            }
           />
         </View>
       
@@ -70,3 +86,11 @@ const styles = StyleSheet.create({
 		zIndex: 100,
 	},
 });
+mapStateToProps = state => {
+
+  return {
+   
+  }
+}
+
+export default connect(mapStateToProps, { signup })(SignupComponent)
