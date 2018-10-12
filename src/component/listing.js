@@ -1,11 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import { Container, Header, Content, List, ListItem, Text } from 'native-base';
-import {StyleSheet,View,KeyboardAvoidingView,FlatList,TouchableHighlight} from 'react-native';
+import {StyleSheet,View,KeyboardAvoidingView,FlatList,TouchableHighlight,AsyncStorage} from 'react-native';
 import {Actions} from "react-native-router-flux";
 import {bindActionCreators} from 'redux';
 import { connect } from 'react-redux';
 import Dimensions from 'Dimensions';
-import {Get_data} from '../action/index';
+import {Get_data,user_data} from '../action/index';
 
 import FilterComponent from '../container/filter'
 const MARGIN = 40;
@@ -19,11 +19,19 @@ class ListComponent extends Component {
         // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
           //dataSource: ds.cloneWithRows(['row 1', 'row 2','row3']),
-          users: []
+          users: [],
+          name:''
         };
         this.props.getData();
+       
         // this.search = this.search.bind(this)
     }
+    componentWillMount(){
+     
+    }
+
+    
+   
 
     search(text){
       alert(text)
@@ -41,7 +49,7 @@ class ListComponent extends Component {
           <List dataArray={this.props.users}
             renderRow={(item) =>
                 <TouchableHighlight ><ListItem > 
-                <Text onPress={() => Actions.detail(item.id)} key={item.id}>{item.user}</Text>
+                <Text onPress={() => this.props.userData(item)} key={item.id}>{item.user}</Text>
               </ListItem></TouchableHighlight>
             }>
           </List>
@@ -83,8 +91,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state) => {
-  return {users: state.users.usersList ? state.users.usersList : null }
+  return {users: state.users.usersList ? state.users.usersList : null , activeuser:state.activeuser}
 
 }
-export default connect(mapStateToProps,{getData:Get_data})(ListComponent)
+export default connect(mapStateToProps,{getData:Get_data,userData:user_data})(ListComponent)
  

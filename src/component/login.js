@@ -9,14 +9,28 @@ import { login } from '../action/index'
  class LoginComponent extends React.Component {
   state = {
     username: '',
-    password: ''
+    password: '',
+    name:''
  }
   handleUser = (text) => {
     this.setState({ username: text })
   }
 
-  
+  componentDidMount (){
+    
+  AsyncStorage.getItem('userdata').then((value) =>{
+    console.log("valueasdasdasd",value)
+    // let value1 = JSON.parse(value)
+    // console.log("value1",value1)
+      if(value!==null){
+        
+        Actions.listing()
+      }
+  })
+   
 
+   
+  }
    
   handlePassword = (text) => {
     this.setState({ password: text })
@@ -43,7 +57,7 @@ import { login } from '../action/index'
   
   
   render() {
-    
+  
     return (
      
     <KeyboardAwareScrollView style={styles.container}>

@@ -7,7 +7,8 @@ import {
 	Image,
 	ListView,
     View,
-    ScrollView
+    ScrollView,
+    AsyncStorage
 } from 'react-native';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body } from 'native-base';
 import {Actions} from "react-native-router-flux";
@@ -19,6 +20,8 @@ import Camera from 'react-native-camera';
 import {  ListItem, Input,Avatar } from 'react-native-elements'
 import {Get_data,user_data} from '../action/index';
 import { GiftedChat } from 'react-native-gifted-chat'
+import SocketIOClient from 'socket.io-client';
+
 
 const MARGIN = 40;
 
@@ -28,59 +31,89 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 
     constructor(props) {
         super(props);
-       // alert(JSON.stringify(props))
-       // const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+      
        this.camera = null; 
        this.state = {
-          //dataSource: ds.cloneWithRows(['row 1', 'row 2','row3']),
+        
           users: [],
           messages: [],
-            // path:this.props.path,
-            // openCamera : false,
+          senderId:''
+
+            
         };
-        // this.takePicture = this.takePicture.bind(this)
-        // this.props.user_data(props.data);
+      
+        this.socket = SocketIOClient('https://chat-app123-node.herokuapp.com/');
     }
-    // async takePicture() {
-    //     if (this.camera) {
-    //       const options = { quality: 0.5, base64: true };
-    //       const data = await this.camera.takePictureAsync(options)
-    //       console.log('camera response',data.uri);
-    //       this.setState({
-    //         openCamera:false,
-    //         path:data.uri
-    //       });
-    //     }
-    //   }
+   
 
     componentWillMount() {
-        this.setState({
-          messages: [
-            {
-              _id: 1,
-              text: 'Hello developer',
-              createdAt: new Date(),
-              user: {
-                _id: 2,
-                name: 'React Native',
-                avatar: 'https://placeimg.com/140/140/any',
-              },
-            },
-          ],
-        })
+      this.socket.on('success', (message)=>
+      this.setState({message:message})
+     
+     
+    );
+      
+        // this.setState({
+        //   messages: [
+        //     {
+        //       _id: 1,
+        //       text: 'Hello developer',
+        //       createdAt: new Date(),
+    
+        //     },
+        //   ],
+        // });
+        // this.socket.emit('chat-1', 'Hello world!');
+        // this.socket.on('chat2', (message)=>console.log( 'Hello world!'));
       }
-      onSend(messages = []) {
-        this.setState(previousState => ({
-          messages: GiftedChat.append(previousState.messages, messages),
-        }))
+      
+      componentDidMount (){
+    
+        AsyncStorage.getItem('userdata').then((value) =>{
+          console.log("valueasdasdasd",JSON.parse(value))
+          let value1 = JSON.parse(value)
+          console.log("value1asdasd",value1._id)
+          this.setState({senderId:value1._id})
+          
+            
+        })
+         
+      
+         
+        }
+
+      
+      onSend(messages = []) {console.log("messages >>>> >>> >> >>>  ",messages)
+        // this.setState(previousState => ({
+        //   messages: GiftedChat.append(previousState.messages, messages),
+
+        // }))
+
+       
+
+        this.socket.emit('add-message', {senderId:this.state.senderId , receiverId:this.props.userDetail._id, message:this.state.messages});
+
+      }
+
+      logout (){
+        this.socket.emit('logout', {userId:this.state.senderId});
+        AsyncStorage.clear()
+        Actions.login()
       }
   render() {
-    // alert(JSON.stringify(this.props))
-    //alert(JSON.stringify(this.props.userDetail))
+   
     const userdetail = this.props.userDetail;
     return (
       
         <View style={{flex:1}}>
+        <View style={{flex:0.1,flexDirection:"row"}}> 
+            <View style={{flex:0.4}}/>
+            <View style={{flex:0.3}}/>
+            <TouchableOpacity style={{flex:0.3 , marginHorizontal:10,marginVertical:10,borderRadius:30,borderWidth:1,borderColor:"gray",backgroundColor:"gray"}} onPress={()=>this.logout()}>
+              <Text style={{color:"ffffff", textAlign:"center"}}>Logout </Text>
+            </TouchableOpacity>
+
+        </View>
         <GiftedChat
         messages={this.state.messages}
         onSend={messages => this.onSend(messages)}
@@ -88,73 +121,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
           _id: 1,
         }}
       />
-        {/*
-        this.state.openCamera?
-        <View style={styles.Cameracontainer}>
-        <RNCamera
-            ref={ref => {
-              this.camera = ref;
-            }}
-            style = {styles.preview}
-            type={RNCamera.Constants.Type.back}
-            flashMode={RNCamera.Constants.FlashMode.on}
-            permissionDialogTitle={'Permission to use camera'}
-            permissionDialogMessage={'We need your permission to use your camera phone'}
-        />
-        <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
-        <TouchableOpacity
-            onPress={this.takePicture}
-            style = {styles.capture}
-        >
-            <Text style={{fontSize: 14}}> SNAP </Text>
-        </TouchableOpacity>
-        </View>
-      </View>
-      :
-       <ScrollView contentContainerStyle={styles.contentContainer}>
-       <RNCamera
-            ref={ref => {
-              this.camera = ref;
-            }}
-            style = {styles.preview}
-            type={RNCamera.Constants.Type.back}
-            flashMode={RNCamera.Constants.FlashMode.on}
-            permissionDialogTitle={'Permission to use camera'}
-            permissionDialogMessage={'We need your permission to use your camera phone'}
-        />
-       <Card
-       title='Registration'
-       style={{justifyContent: 'center', alignItems: 'center'}}>
-
-       <View
-        style={{
-          flexDirection: 'column',
-          flex:1,
-          justifyContent: 'center', alignItems: 'center'
-        }}>
-
-        <Avatar
-       xlarge
-       rounded
-       avatarStyle={{justifyContent: 'center', alignItems: 'center'}}
-       source={{uri: this.state.path}}
-       onPress={()=>this.setState({ openCamera : true })}
-       activeOpacity={0.7}
-     />
-        <Text>
-            Name: {userdetail.first} {userdetail.last}
-        </Text>
-        <Text>
-            age: {userdetail.age} 
-        </Text>
-        <Text>
-            description: {userdetail.description} 
-        </Text>
-    </View>
-    </Card>
-
-    </ScrollView>
-    */}
+        
     </View>
       
       
@@ -164,13 +131,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 }
 
 const styles = StyleSheet.create({
-	//container: {
-		//flex: 1,
-        //backgroundColor:"#d3d3d3",
-        //alignItems: 'center',
-        //marginTop:55,
-		//justifyContent: 'center',
-    //},
+
     view:{
         
     },
@@ -220,7 +181,9 @@ const styles = StyleSheet.create({
       }
 });
 const mapStateToProps = (state) => {
-    return { userDetail: state.users.userData  }
+  
+    return { userDetail: state.users.userData ,
+      activeuser:state.activeuser }
 
 }
 export default connect(mapStateToProps,{user_data})(DetailComponent)

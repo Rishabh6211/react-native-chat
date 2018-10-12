@@ -6,6 +6,7 @@
 }*/
 import {Actions} from "react-native-router-flux";
 import {root_url} from "../configConst/constant"
+import {AsyncStorage} from  'react-native';
 export const FETCH_POST = 'FETCH_POST';
 
 
@@ -55,14 +56,15 @@ export function Get_data(){
 	}
 	
 }
-export function user_data(id){
-	
+export function user_data(item){
+	console.log("item555555",item)
 	return dispatch => {
 			
-		let loginUser = Data.users.find((obj) => obj.id === id)	
+		// let loginUser = Data.users.find((obj) => obj.id === id)	
 		dispatch({
-					type: 'user_DATA',payload : loginUser
+					type: 'user_DATA',payload : item
 				});
+				Actions.detail()
 		
       	
       }
@@ -82,6 +84,7 @@ export function login(username){
 		})
 			.then(res => res.json())
 			.then(users => {
+				AsyncStorage.setItem('userdata', JSON.stringify(users.data));
 				console.log("users",users)
 				if (users.code ===200) {
 					alert("successfully Login")
